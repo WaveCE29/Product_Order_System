@@ -5,7 +5,7 @@
 - Language: Go
 - Framework: Fiber
 - DB: SQLite
-- Architecture: Hexagonal Architecture
+- Architecture: Clean Architecture
 
 ## Installation
 
