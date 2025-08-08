@@ -1,0 +1,288 @@
+### Health Check
+GET http://localhost:8080/health
+
+###
+
+### Step 1: Create Products First
+
+### Create Product 1
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "iPhone 15 Pro",
+  "stock": 50
+}
+
+###
+
+### Create Product 2
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "Samsung Galaxy S24",
+  "stock": 30
+}
+
+###
+
+### Create Product 3
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "MacBook Pro M3",
+  "stock": 10
+}
+
+###
+
+### Step 2: Verify Products Were Created
+GET http://localhost:8080/products
+
+###
+
+### Step 3: Test Product Validation
+
+### Create Product with Invalid Data (should fail - negative stock)
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "name": "Test Product",
+  "stock": -5
+}
+
+###
+
+### Create Product with Missing Name (should fail)
+POST http://localhost:8080/products
+Content-Type: application/json
+
+{
+  "stock": 20
+}
+
+###
+
+### Step 4: Test Product Retrieval
+
+### Get Product by ID (existing - should work after creating products above)
+GET http://localhost:8080/products/1
+
+###
+
+### Get Product by ID (non-existent)
+GET http://localhost:8080/products/999
+
+###
+
+### Get Product by Invalid ID
+GET http://localhost:8080/products/invalid
+
+###
+
+### Step 5: Create Orders (Only after products exist)
+
+### Create Order 1 - Valid Order
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "user_id": "user123",
+  "quantity": 2,
+  "idempotency_key": "order-001"
+}
+
+###
+
+### Create Order 2 - Same idempotency key (should return existing order)
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "user_id": "user123",
+  "quantity": 2,
+  "idempotency_key": "order-001"
+}
+
+###
+
+### Create Order 3 - Different product
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "product_id": 2,
+  "user_id": "user456",
+  "quantity": 5,
+  "idempotency_key": "order-002"
+}
+
+###
+
+### Create Order 4 - Large quantity
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "product_id": 3,
+  "user_id": "user789",
+  "quantity": 8,
+  "idempotency_key": "order-003"
+}
+
+###
+
+### Create Order - Insufficient stock (should fail)
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "product_id": 3,
+  "user_id": "user999",
+  "quantity": 20,
+  "idempotency_key": "order-004"
+}
+
+###
+
+### Create Order - Invalid product ID (should fail)
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "product_id": 999,
+  "user_id": "user999",
+  "quantity": 1,
+  "idempotency_key": "order-005"
+}
+
+###
+
+### Create Order - Missing user ID (should fail)
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "quantity": 1,
+  "idempotency_key": "order-006"
+}
+
+###
+
+### Create Order - Zero quantity (should fail)
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "user_id": "user999",
+  "quantity": 0,
+  "idempotency_key": "order-007"
+}
+
+###
+
+### Create Order - Negative quantity (should fail)
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "user_id": "user999",
+  "quantity": -1,
+  "idempotency_key": "order-008"
+}
+
+###
+
+### Create Order without idempotency key (auto-generated)
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "user_id": "user-auto",
+  "quantity": 1
+}
+
+###
+
+### Get All Products After Orders (check stock deduction)
+GET http://localhost:8080/products
+
+###
+
+### API Version 1 Routes Tests
+
+### Create Product via API v1
+POST http://localhost:8080/api/v1/products
+Content-Type: application/json
+
+{
+  "name": "iPad Air",
+  "stock": 25
+}
+
+###
+
+### Get All Products via API v1
+GET http://localhost:8080/api/v1/products
+
+###
+
+### Get Product by ID via API v1
+GET http://localhost:8080/api/v1/products/1
+
+###
+
+### Create Order via API v1
+POST http://localhost:8080/api/v1/orders
+Content-Type: application/json
+
+{
+  "product_id": 1,
+  "user_id": "api-user",
+  "quantity": 3,
+  "idempotency_key": "api-order-001"
+}
+
+###
+
+### Edge Cases and Stress Tests
+
+### Create Order - Exact stock amount (should work)
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "product_id": 2,
+  "user_id": "exact-user",
+  "quantity": 25,
+  "idempotency_key": "exact-order"
+}
+
+###
+
+### Create Order - One more than stock (should fail)
+POST http://localhost:8080/orders
+Content-Type: application/json
+
+{
+  "product_id": 2,
+  "user_id": "over-user",
+  "quantity": 1,
+  "idempotency_key": "over-order"
+}
+
+###
+
+### Final Stock Check
+GET http://localhost:8080/products
+
+###

@@ -1,22 +1,38 @@
 package config
 
-import "os"
+import (
+	"os"
+)
 
 type Config struct {
-	DatabasePath string `json:"database_path"`
-	Port         string `json:"port"`
+	Server   ServerConfig
+	Database DatabaseConfig
 }
 
-func Load() *Config {
+type ServerConfig struct {
+	Port string
+	Host string
+}
+
+type DatabaseConfig struct {
+	Path string
+}
+
+func LoadConfig() *Config {
 	return &Config{
-		DatabasePath: getEnv("DATABASE_PATH", "ecommerce.db"),
-		Port:         getEnv("PORT", "3000"),
+		Server: ServerConfig{
+			Port: getEnv("PORT", "8080"),
+			Host: getEnv("HOST", "0.0.0.0"),
+		},
+		Database: DatabaseConfig{
+			Path: getEnv("DATABASE_PATH", "./ecommerce.db"),
+		},
 	}
 }
 
-func getEnv(key string, defaultValue string) string {
-	if val := os.Getenv(key); val != "" {
-		return val
+func getEnv(key, defaultValue string) string {
+	if value := os.Getenv(key); value != "" {
+		return value
 	}
 	return defaultValue
 }

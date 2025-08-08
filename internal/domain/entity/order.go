@@ -1,4 +1,4 @@
-package product
+package entity
 
 import "time"
 
@@ -11,3 +11,9 @@ type Order struct {
 	IdempotencyKey string    `json:"idempotency_key,omitempty" db:"idempotency_key"`
 	CreatedAt      time.Time `json:"created_at" db:"created_at"`
 }
+
+const (
+	OrderStatusPending   = "pending"
+	OrderStatusCompleted = "completed"
+	OrderStatusCancelled = "cancelled"
+)
